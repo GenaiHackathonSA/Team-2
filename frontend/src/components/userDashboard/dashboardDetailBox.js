@@ -1,17 +1,57 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import incomeImg from '../../assets/images/income.png';
 import expenseImg from '../../assets/images/expense.png';
 import cashInHandImg from '../../assets/images/cashInHand.png';
 import transactionImg from '../../assets/images/transaction.png';
-import offer1Img from '../../assets/images/Frame 851.png'; // Add your offer images
-import offer2Img from '../../assets/images/Frame 852.png'; // Add your offer images
-import offer3Img from '../../assets/images/Frame 853.png'; // Add your offer images
 
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import userService from "../../services/userService";
+import authService from "../../services/auth.service";
 
 function DashboardDetailBox({ total_income, total_expense, cash_in_hand, no_of_transactions }) {
+    const [offers, setOffers] = useState([]);
+
+    useEffect(() => {
+        fetch('https://675172c8d1983b9597b2ceaa.mockapi.io/mockads/v1/ad')
+            .then(response => response.json())
+            .then(data => setOffers(data))
+            .catch(error => console.error('Error fetching offers:', error));
+    }, []);
+
+    const handleBannerClick = (offer) => {
+        const userConfirmed = window.confirm(`Do you want to purchase from this offer: ${offer.title}?`);
+        if (userConfirmed) {
+            const payload = {
+                userEmail: "user@gmail.com",
+                categoryId: offer.id,
+                description: offer.title,
+                amount: offer.price,
+                date: new Date(),
+                currency: "USD"
+            };
+
+            fetch('http://localhost:8080/spendwise/transaction/new', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `${authService.authHeader().Authorization}`
+                },
+                body: JSON.stringify(payload),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Transaction successful:', data);
+                    alert('Transaction successful!');
+                })
+                .catch(error => {
+                    console.error('Error making transaction:', error);
+                    alert('Transaction failed!');
+                });
+        }
+    };
+
     const sliderSettings = {
         dots: true,
         infinite: true,
@@ -26,16 +66,13 @@ function DashboardDetailBox({ total_income, total_expense, cash_in_hand, no_of_t
         <div className='dashboard'>
             <div className='offers-slider'>
                 <Slider {...sliderSettings}>
-                    <div>
-                        <img src={offer1Img} alt="Offer 1"/>
-                    </div>
-                    <div>
-                        <img src={offer2Img} alt="Offer 2"/>
-                    </div>
-                    <div>
-                        <img src={offer3Img} alt="Offer 3"/>
-                    </div>
-                    {/* Add more offers as needed */}
+                    {offers.map(offer => (
+                        <div key={offer.id} onClick={() => handleBannerClick(offer)}>
+                            <a href={offer.link} target="_blank" rel="noopener noreferrer">
+                                <img src={offer.imageUrl} alt={offer.title} />
+                            </a>
+                        </div>
+                    ))}
                 </Slider>
             </div>
             <div className='details'>
