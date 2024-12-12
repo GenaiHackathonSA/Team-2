@@ -1,5 +1,6 @@
 package com.fullStack.expenseTracker.controllers;
 
+import com.fullStack.expenseTracker.dto.requests.CategoryRequestDto;
 import com.fullStack.expenseTracker.services.CategoryService;
 import com.fullStack.expenseTracker.dto.reponses.ApiResponseDto;
 import com.fullStack.expenseTracker.exceptions.CategoryNotFoundException;
@@ -29,6 +30,21 @@ public class CategoryController {
     public ResponseEntity<ApiResponseDto<?>> disableOrEnableCategory(@Param ("categoryId") int categoryId)
             throws CategoryServiceLogicException, CategoryNotFoundException {
         return categoryService.enableOrDisableCategory(categoryId);
+    }
+
+    @PostMapping("/add")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponseDto<?>> addCategory(@RequestBody CategoryRequestDto categoryRequestDto)
+            throws CategoryServiceLogicException {
+        return categoryService.addCategory(categoryRequestDto);
+    }
+
+    @PutMapping("/update/{categoryId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<ApiResponseDto<?>> updateCategory(@PathVariable("categoryId") int categoryId,
+                                                            @RequestBody CategoryRequestDto categoryRequestDto)
+            throws CategoryServiceLogicException, CategoryNotFoundException {
+        return categoryService.updateCategory(categoryId, categoryRequestDto);
     }
 
 }
