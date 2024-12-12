@@ -103,3 +103,4 @@ You can log in using the following users:
 2. **Docker Issues**: Make sure Docker Desktop is running before starting the application
 3. **Database Connection**: Verify MySQL container is running using `docker ps`
 4. **Java Version**: Ensure JAVA_HOME is properly set to JDK 21
+

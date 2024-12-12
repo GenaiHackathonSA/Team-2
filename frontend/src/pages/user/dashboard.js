@@ -8,6 +8,8 @@ import useDashboard from '../../hooks/useDashboard';
 import Loading from '../../components/utils/loading';
 import Info from '../../components/utils/Info';
 import Container from '../../components/utils/Container';
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import toast, { Toaster } from 'react-hot-toast';
 
 function Dashboard() {
