@@ -26,5 +26,4 @@ public class TransactionResponseDto {
     private LocalDate date;
 
     private String userEmail;
-
 }

@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -41,6 +42,9 @@ public class TransactionServiceImpl implements TransactionService {
             throws UserNotFoundException, CategoryNotFoundException, TransactionServiceLogicException {
         Transaction transaction = TransactionRequestDtoToTransaction(transactionRequestDto);
         try {
+            // Convert amount to base currency (e.g., USD) if necessary
+            double amountInBaseCurrency = convertToBaseCurrency(transactionRequestDto.getAmount(), transactionRequestDto.getCurrency());
+            transaction.setAmount(amountInBaseCurrency);
             transactionRepository.save(transaction);
             return ResponseEntity.status(HttpStatus.CREATED).body(
                     new ApiResponseDto<>(
@@ -50,12 +54,27 @@ public class TransactionServiceImpl implements TransactionService {
                     )
             );
 
-        }catch(Exception e) {
+        } catch (Exception e) {
             log.error("Error happen when adding new transaction: " + e.getMessage());
             throw new TransactionServiceLogicException("Failed to record your new transaction, Try again later!");
         }
-
     }
+
+    private double convertToBaseCurrency(double amount, String currency) {
+        if (currency.equalsIgnoreCase("usd")) {
+            return amount;
+        }
+        // Call the currency conversion API
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "http://localhost:8000/convert?source=" + currency + "&target=usd&amount=" + amount;
+        ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
+        if (response.getStatusCode() == HttpStatus.OK) {
+            Map responseBody = response.getBody();
+            return (double) responseBody.get("converted_amount");
+        }
+        throw new RuntimeException("Failed to convert currency");
+    }
+
 
     @Override
     public ResponseEntity<ApiResponseDto<?>> getTransactionsByUser(String email,
