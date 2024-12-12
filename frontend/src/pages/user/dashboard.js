@@ -10,6 +10,9 @@ import Info from "../../components/utils/Info";
 import Container from "../../components/utils/Container";
 import toast, { Toaster } from "react-hot-toast";
 import Chatbox from "../../components/chatbox/chatbox";
+import "../../assets/styles/dashboard.css";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 function Dashboard() {
   const months = getMonths();
